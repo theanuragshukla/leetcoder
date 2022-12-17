@@ -1,0 +1,5 @@
+CREATE TABLE emails (
+  "id" serial not null,
+  "email" text,
+  "timestamp" timestamp default current_timestamp);
+
