@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000
 const db = require('./config/database')
 const email = process.env.EMAIL
 const pass = process.env.PASS
-
+const cron = require('node-cron')
 app.use(express.urlencoded({
         extended:true
 }))
@@ -70,8 +70,10 @@ const getStats = async () => {
         return ret.data.data.matchedUser.submitStatsGlobal.acSubmissionNum
         }
 
-app.get('/getStats',async (req, res)=>{
-        const data = await getStats()
+const getStatsHelper = async (req, res) => {
+   const data = await getStats()
+	console.log(stats)
+	console.log(data)
         if(stats.ttl<data[0].count){
                 stats.ttl = data[0].count
                 if(stats.first){
@@ -81,7 +83,13 @@ app.get('/getStats',async (req, res)=>{
                 }
         }
         res.json(data)
-})
+
+}
+
+app.get('/getStats',async (req, res)=>{
+	getStatsHelper(req, res)
+  })
+
 app.get('/getProfile',async (req, res)=>{
         const data = await getProfile()
         res.json(data)
@@ -115,11 +123,13 @@ app.post('/submitForm',async(req,res)=>{
 app.get('/', (req, res)=>{
         res.sendFile(__dirname+'/index.html')
 })
+
+const job = cron.schedule("* * * * *", getStatsHelper)
+
+
 const server = http.listen(port, ()=>{
-        setInterval(()=>{
-                axios.get("https://leetcodermanish.onrender.com/getStats")
-        }, 300000)
-        console.log(`running on port ${port}`);
+	job.start()
+	console.log(`running on port ${port}`);
 })
 
 
