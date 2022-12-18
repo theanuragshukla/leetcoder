@@ -124,7 +124,7 @@ app.get('/', (req, res)=>{
         res.sendFile(__dirname+'/index.html')
 })
 
-const job = cron.schedule("* * * * *", getStatsHelper)
+const job = cron.schedule("*/5 * * * *", getStatsHelper)
 
 
 const server = http.listen(port, ()=>{
