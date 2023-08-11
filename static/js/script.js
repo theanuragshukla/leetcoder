@@ -1,15 +1,15 @@
 const setProfile = (obj) => {
-	document.getElementById('avatar').setAttribute('src', obj.userAvatar)
+	document.getElementById('avatar').setAttribute('src', obj.profile.userAvatar)
 	document.getElementById('username').innerText=obj.username
 }
 
-const statsMarkup = (arr) => {
+const statsMarkup = (obj) => {
 	const markup = `
 		<h2>Problems Stats</h2>
 		${
-			arr.map(obj=>{
+			Object.entries(obj).map(([difficulty, count])=>{
 				return `
-					<div><span>${obj.difficulty}</span><span>${obj.count}</span></div>
+					<div><span>${difficulty}</span><span>${count}</span></div>
 				`
 			}).join(" ")
 		}

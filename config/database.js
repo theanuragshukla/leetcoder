@@ -1,11 +1,18 @@
-const { Pool } = require("pg");
-require("dotenv").config();
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({
-	connectionString: connectionString,
-	ssl: { rejectUnauthorized: false }
-});
+var mongoose = require('mongoose');
+require('dotenv').config()
 
-module.exports = {
-  query: (text, params) => pool.query(text, params),
-};
+mongoose.connect(
+    process.env.DATABASE_URL,
+    {
+        useNewUrlParser: true,
+    }
+);
+var conn = mongoose.connection;
+conn.on('connected', function () {
+    console.log('database is connected successfully');
+});
+conn.on('disconnected', function () {
+    console.log('database is disconnected successfully');
+});
+conn.on('error', console.error.bind(console, 'connection error:'));
+module.exports = conn;
