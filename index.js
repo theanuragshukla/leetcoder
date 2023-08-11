@@ -1,4 +1,5 @@
 const axios = require("axios");
+require("dotenv").config()
 const username = "manishkumarraigithub";
 const express = require("express");
 const app = express();
@@ -12,6 +13,8 @@ const API_TOKEN = process.env.BOT_TOKEN;
 const { Telegraf, Markup } = require("telegraf");
 const bot = new Telegraf(API_TOKEN);
 const leet = require('./leetcode');
+var mongoose = require('mongoose');
+
 app.use(
     express.urlencoded({
         extended: true,
@@ -37,7 +40,7 @@ const sender = mailer.createTransport({
 });
 
 const sendBulkMail = async () => {
-    const rows =  await userSchema.find({}, {email:1, _id:0})
+    const rows = await userSchema.find({}, { email: 1, _id: 0 })
     console.log(rows)
     rows.map((to) => {
         const options = {
@@ -109,7 +112,7 @@ app.post("/submitForm", async (req, res) => {
         return;
     }
     try {
-        await new userSchema({email}).save();
+        await new userSchema({ email }).save();
         res.status(200).json({ status: true });
         return
     } catch (err) {
@@ -135,10 +138,26 @@ app.get("/sendmail", (req, res) => {
 
 const job = cron.schedule("*/5 * * * *", getStatsHelper);
 
-const server = http.listen(port, async () => {
-    job.start();
-    console.log(`running on port ${port}`);
+
+mongoose.connect(
+    process.env.DATABASE_URL,
+    {
+        useNewUrlParser: true,
+    }
+);
+var conn = mongoose.connection;
+conn.on('connected', function() {
+    console.log('database is connected successfully');
+    http.listen(port, async () => {
+        job.start();
+        console.log(`running on port ${port}`);
+    });
+
 });
+conn.on('disconnected', function() {
+    console.log('database is disconnected successfully');
+});
+conn.on('error', console.error.bind(console, 'connection error:'));
 
 const generateMail = () => {
     return `
