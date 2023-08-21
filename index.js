@@ -135,6 +135,16 @@ app.get("/sendmail", (req, res) => {
     res.end("message sent on Email");
 });
 
+app.get("/ranking/:page",async (req, res) => {
+    const {page} = req.params
+    if(isNaN(Number(page))){
+        res.json({status:false, msg:"Enter a valid page number"})
+        return
+    }
+    const data = await leet.rankings(page)
+    res.json(data)
+});
+
 
 const job = cron.schedule("*/5 * * * *", getStatsHelper);
 

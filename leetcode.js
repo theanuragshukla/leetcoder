@@ -1,33 +1,33 @@
 //graphql query
 const query = `
-  query getUserProfile($username: String!) {
+query getUserProfile($username: String!) {
     allQuestionsCount {
-      difficulty
-      count
+        difficulty
+        count
     }
     matchedUser(username: $username) {
-      contributions {
-        points
-      }
-      profile {
-        reputation
-        ranking
-      }
-      submissionCalendar
-      submitStats {
-        acSubmissionNum {
-          difficulty
-          count
-          submissions
+        contributions {
+            points
         }
-        totalSubmissionNum {
-          difficulty
-          count
-          submissions
+        profile {
+            reputation
+            ranking
         }
-      }
+        submissionCalendar
+        submitStats {
+            acSubmissionNum {
+                difficulty
+                count
+                submissions
+            }
+            totalSubmissionNum {
+                difficulty
+                count
+                submissions
+            }
+        }
     }
-  }
+}
 `;
 
 const profileQuery = `
@@ -40,14 +40,69 @@ query userPublicProfile($username: String!) {
             ranking
             userAvatar
             realName
-      aboutMe
-      school
-      websites
-      skillTags
+            aboutMe
+            school
+            websites
+            skillTags
+        }
     }
+}
+`
+
+
+
+const rankingQuery = (page) =>  `
+
+{
+  globalRanking(page: ${page}) {
+    totalUsers
+    userPerPage
+    myRank {
+      ranking
+      currentGlobalRanking
+      currentRating
+      dataRegion
+      user {
+       nameColor
+        activeBadge {
+          displayName
+          icon
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    rankingNodes {
+      ranking
+      currentRating
+      currentGlobalRanking
+      dataRegion
+      user {
+        username
+        nameColor
+        activeBadge {
+          displayName
+          icon
+          __typename
+        }
+        profile {
+          userAvatar
+          countryCode
+          countryName
+          realName
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
   }
 }
-  `
+
+`
+
 
 
 // format data
@@ -117,3 +172,29 @@ exports.leetcode = async (user) => {
         }
     }
 }
+
+
+
+
+
+exports.rankings = async (page = 1) => {
+    const res = await fetch('https://leetcode.com/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Referer': 'https://leetcode.com'
+        },
+        body: JSON.stringify({ query: rankingQuery(page)}),
+    })
+    const data = await res.json()
+    try {
+        if (data.errors) {
+            return {status:false, data:data}
+        } else {
+            return data
+        }
+    } catch (err) {
+        return {status:false, data:err}
+    }
+}
+
